@@ -251,7 +251,7 @@ const combatCharacterQuestions:Question[]=characterCombatData.flatMap((c,i)=>{
   return [
     {id:2000+i*3,category:"キャラクター性能",question:`${c.name}のコストは？`,options:costChoices,answer:i%2===0?0:1,explanation:`${c.name}のコストは${c.cost}です。`,image:images[(20+i)%images.length]},
     {id:2001+i*3,category:"キャラクター性能",question:`${c.name}の「${c.weapon}」の弾数は？`,options:ammoChoices,answer:i%2===0?1:0,explanation:`「${c.weapon}」の弾数は${c.ammo}です。`,image:images[(21+i)%images.length]},
-    {id:2002+i*3,category:"キャラクター性能",question:`${c.name}の「${c.weapon}」の掲載威力は？`,options:powerChoices,answer:i%2===0?0:1,explanation:`「${c.weapon}」のフルヒット時を含む掲載威力は${c.power}です。`,image:images[(22+i)%images.length]},
+    {id:2002+i*3,category:"キャラクター性能",question:`${c.name}の「${c.weapon}」の威力は？`,options:powerChoices,answer:i%2===0?0:1,explanation:`「${c.weapon}」の威力は${c.power}です。`,image:images[(22+i)%images.length]},
   ] as Question[];
 });
 
