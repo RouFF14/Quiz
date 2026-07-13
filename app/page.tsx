@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 type Question = { id: number; category: string; question: string; options: string[]; answer: number; explanation: string; image: string };
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
 const images = `
 meme_20023.png meme_20024.png meme_20025.png
@@ -19,7 +20,7 @@ meme_breaker_01_fight.png meme_breaker_02_cry.png meme_breaker_03_wuyu.png meme_
 meme_cammy_01_ye.png meme_cammy_02_doubt.png meme_cammy_03_sleep.png meme_cammy_04_music.png meme_cammy_05_zhui.png
 meme_cherub_01_anger.png meme_cherub_02_laugh.png meme_cherub_03_peaceful.png meme_cherub_04_pique.png meme_cherub_05_readpapers.png meme_cherub_06_shrug.png meme_cherub_07_sleep.png meme_cherub_08_stareblankly.png meme_cherub_09_emo.png meme_cherub_10_haixiu.png meme_cherub_11_hush.png meme_cherub_12_kunao.png meme_cherub_13_lue.png meme_cherub_14_power.png meme_cherub_15_scorn.png meme_cherub_16_yuannian.png
 meme_darkgalahad_01_angry.png meme_darkgalahad_02_hei.png meme_darkgalahad_03_listless.png meme_darkgalahad_04_silent.png meme_darkgalahad_05_grimace.png
-`.trim().split(/\s+/).map(name=>`/characters/${name}`);
+`.trim().split(/\s+/).map(name=>`${basePath}/characters/${name}`);
 
 const baseQuestions: Question[] = [
   {id:1,category:"基本",question:"『星の翼』の中心となる対戦形式は？",options:["3対3","2対2","5対5","バトルロイヤル"],answer:1,explanation:"1v1と2v2が主軸。特にアーケードスタイルの2v2がゲームの核です。",image:images[0]},
@@ -103,7 +104,7 @@ export default function Home({editorOnly=false}:{editorOnly?:boolean}={}) {
   function importQuiz(file:File){const reader=new FileReader();reader.onload=()=>{try{const data=JSON.parse(String(reader.result));if(!Array.isArray(data))throw new Error();setQuestions(data);alert(`${data.length}問を復元しました`)}catch{alert("クイズJSONを読み込めませんでした")}};reader.readAsText(file)}
 
   return <main>
-    <div className="stars"/><header><button className="brand" onClick={()=>editorOnly?undefined:setScreen("home")}><span>STARWARD</span><b>{editorOnly?"星の翼 クイズ編集室":"星の翼 仕様クイズ"}</b></button><nav>{editorOnly?<a href="/" target="_blank" rel="noreferrer">公開用を見る ↗</a>:<span className="public-badge">PUBLIC QUIZ</span>}</nav></header>
+    <div className="stars"/><header><button className="brand" onClick={()=>editorOnly?undefined:setScreen("home")}><span>STARWARD</span><b>{editorOnly?"星の翼 クイズ編集室":"星の翼 仕様クイズ"}</b></button><nav>{editorOnly?<a href={`${basePath}/`} target="_blank" rel="noreferrer">公開用を見る ↗</a>:<span className="public-badge">PUBLIC QUIZ</span>}</nav></header>
 
     {!editorOnly&&screen==="home"&&<section className="hero">
       <div className="hero-copy"><p className="eyebrow">STARWARD SYSTEM CHECK</p><h1>その知識、<br/><em>星を翔ける。</em></h1><p className="lead">基本操作から覚醒・コスト管理まで。<br/>全20問で、あなたの「星の翼」理解度をテスト。</p><div className="chips">{["全20問","4択形式","すぐ解説"].map(x=><span key={x}>{x}</span>)}</div><label className="shuffle"><input type="checkbox" checked={random} onChange={e=>setRandom(e.target.checked)}/><i/> 問題をシャッフル</label><button className="primary" onClick={start}>ミッション開始 <span>›</span></button></div>
