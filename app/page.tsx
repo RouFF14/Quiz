@@ -88,14 +88,14 @@ export default function Home({editorOnly=false}:{editorOnly?:boolean}={}) {
   const [index,setIndex]=useState(0); const [score,setScore]=useState(0);
   const [selected,setSelected]=useState<number|null>(null); const [finished,setFinished]=useState(false);
   const [answers,setAnswers]=useState<number[]>([]);
-  const [random,setRandom]=useState(false); const [draft,setDraft]=useState<Question|null>(null);
+  const [draft,setDraft]=useState<Question|null>(null);
   const q=order[index];
   const rank=score>=18?"星間エース":score>=14?"熟練スターライダー":score>=9?"ルーキーパイロット":"訓練生";
   const categories=useMemo(()=>Array.from(new Set(questions.map(x=>x.category))),[questions]);
   useEffect(()=>{try{const saved=localStorage.getItem("starward-quiz-questions-v1");if(saved)setQuestions(JSON.parse(saved))}catch{}finally{setStorageReady(true)}},[]);
   useEffect(()=>{if(storageReady)localStorage.setItem("starward-quiz-questions-v1",JSON.stringify(questions))},[questions,storageReady]);
 
-  function start(){const pool=random?[...questions].sort(()=>Math.random()-.5):[...questions];const next=pool.slice(0,20);setOrder(next);setIndex(0);setScore(0);setAnswers([]);setSelected(null);setFinished(false);setScreen("quiz")}
+  function start(){const next=[...questions].sort(()=>Math.random()-.5).slice(0,20);setOrder(next);setIndex(0);setScore(0);setAnswers([]);setSelected(null);setFinished(false);setScreen("quiz")}
   function choose(i:number){setSelected(i)}
   function next(){if(selected===null)return;setAnswers(prev=>[...prev,selected]);if(selected===q.answer)setScore(s=>s+1);if(index===order.length-1){setFinished(true)}else{setIndex(i=>i+1);setSelected(null)}}
   function saveDraft(){if(!draft)return;setQuestions(prev=>{const found=prev.some(x=>x.id===draft.id);return found?prev.map(x=>x.id===draft.id?draft:x):[...prev,draft]});setDraft(null)}
@@ -106,7 +106,7 @@ export default function Home({editorOnly=false}:{editorOnly?:boolean}={}) {
     <div className="stars"/><header><button className="brand" onClick={()=>editorOnly?undefined:setScreen("home")}><span>STARWARD</span><b>{editorOnly?"星の翼 クイズ編集室":"星の翼 仕様クイズ"}</b></button><nav>{editorOnly?<a href={`${basePath}/`} target="_blank" rel="noreferrer">公開用を見る ↗</a>:<span className="public-badge">PUBLIC QUIZ</span>}</nav></header>
 
     {!editorOnly&&screen==="home"&&<section className="hero">
-      <div className="hero-copy"><p className="eyebrow">STARWARD SYSTEM CHECK</p><h1>その知識、<br/><em>星を翔ける。</em></h1><p className="lead">基本操作から覚醒・コスト管理まで。<br/>全20問で、あなたの「星の翼」理解度をテスト。</p><div className="chips">{["全20問","4択形式","すぐ解説"].map(x=><span key={x}>{x}</span>)}</div><label className="shuffle"><input type="checkbox" checked={random} onChange={e=>setRandom(e.target.checked)}/><i/> 問題をシャッフル</label><button className="primary" onClick={start}>ミッション開始 <span>›</span></button></div>
+      <div className="hero-copy"><p className="eyebrow">STARWARD SYSTEM CHECK</p><h1>その知識、<br/><em>星を翔ける。</em></h1><p className="lead">基本操作から覚醒・コスト管理まで。<br/>全20問で、あなたの「星の翼」理解度をテスト。</p><div className="chips">{["全20問","2択・4択","最後に解説"].map(x=><span key={x}>{x}</span>)}</div><div className="shuffle always"><i/> 毎回ランダムに20問を出題</div><button className="primary" onClick={start}>ミッション開始 <span>›</span></button></div>
       <div className="hero-art"><div className="orbit one"/><div className="orbit two"/><div className="glow"/><img src={images[4]} alt="星の翼 キャラクター"/><div className="status-card"><span>KNOWLEDGE TEST</span><b>20 <small>QUESTIONS</small></b><div><i/><i/><i/><i/><i/></div></div></div>
       <div className="corner-note">SYSTEM<br/>ONLINE <b>●</b></div>
     </section>}

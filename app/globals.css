@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 /* editor-size-and-answer-review */
+.shuffle.always i{border-color:#3ee7ff}.shuffle.always i:after{left:19px;background:#3ee7ff;box-shadow:0 0 10px #3ee7ff}
 nav a{color:#bdf7ff;text-decoration:none;border:1px solid #3ee7ff55;padding:10px 15px;font-size:12px}.public-badge{color:#3ee7ff;font:10px monospace;letter-spacing:.2em;border:1px solid #3ee7ff44;padding:8px 12px}
 .import-button{display:inline-flex;align-items:center;justify-content:center;color:#cbd8ec;background:#151d35;border:1px solid #33415d;padding:15px 18px;font-weight:800;font-size:13px;cursor:pointer}.import-button input{display:none}.autosave-note{margin-top:14px;color:#4dffbb;font:11px monospace;letter-spacing:.12em}
 .editor-columns,.editor-images{min-height:0!important}.editor-images .reaction-grid{flex:1!important;min-height:0!important;align-content:start;overscroll-behavior:contain}.editor-images{overflow:hidden!important}
