@@ -188,6 +188,73 @@ const generatedCharacterQuestions: Question[] = rosterData.flatMap((c,i)=>{
   ] as Question[];
 }).slice(0,130);
 
+const characterCombatData = `
+グリフィン|3.0|追従式ビット|2(3凸時3)|374
+ヒカリ|3.0|ビームキャノン|6(3凸時8)|225
+エルフィン|3.0|クロスボウ|3|449
+ケルビム|3.0|天使武装・銃|7|225
+シュウウ|3.0|斬龍|4|210(チャージ480)
+スズラン|3.0|フラワーフェアリー|5(3凸時7)|228
+キャヴァリー|3.0|コントローラー射撃|12(1凸時18)|217
+ラジエル|3.0|天使武装・銃|4|225
+影|3.0|影刃|3|150
+ライン|3.0|魔竜の咆哮|7(進化時9)|225
+ロタ|3.0|エルフの槍光|4(4凸時6)|210
+イーザー|3.0|術式・炎II|6|210
+秋雲|3.0|御霊・斬|2|165
+ベータ-ロンギヌス|3.0|ガンブレード|8(2凸時10)|210
+キャミィ|3.0|リズムビート|6|210
+セイレン|3.0|海の光|7|210
+無銘|3.0|鬼銃|7|210
+アカツキ|3.0|複合兵装・射撃|9|210
+ヴォイドセーバー|3.0|合成兵装・射撃(分離)|5|302
+プリシュカ|3.0|RADS-213 ウィングドユサール・キャノン|8(4凸時10)|210
+フリード|2.5|魔弾射撃|7|210
+カゼ|2.5|デュアルサブマシンガン|60(4凸時72)|26～412
+シャオリン|2.5|天星玄機・弾|2|210
+シャープ|2.5|バレットモード|5(2凸時6)|389
+アリス|2.5|ランス射撃|4|210
+スカイセーバー|2.5|リストビームガン|6|195
+十八号|2.5|過負荷射撃|3(3凸時5)|270
+シグナス|2.5|パ・グラシアル|6|210
+アンジェリス|2.5|聖光流星|4(4凸時5)|146～270
+ヴァルキア|2.5|リストビームガン|6|210
+エヴァ|2.5|クラッシュ・コメット|3|314
+轟雷改|2.5|レールガン|5|210
+稲|2.5|正射|4|240(強化315)
+バーゼラルド|2.5|セグメントライフル|7|210
+ノーラ|2.5|生まれつきの怪力！|6|210(強化222)
+ランスロット|2.5|光の妖精・L1|7|210
+サンダーボルト・OTOME|2.5|XB-02S ビームライフル|7|210
+ガラハッド・暁|2.5|聖光流弾|7|210
+デッド・アライブ|2.5|爆竹輪|72|412
+ハルカ|2.5|腕部マシンガン|80|310
+ドラグナー|2.5|RADS-227 キャバルリーライフル|3|441
+レキ|2.5|刃閃|1|270～459
+ブラック★ロックシューター|2.5|重砲(砲撃モード)|2(1凸時3)|330(強化390)
+デッドマスター|2.5|使い魔・吐息|4(強化5)|452
+レミエル|2.5|専用型ビームキャノン|6|210
+ベータ|2.0|天使武装・銃|7(5凸時9)|210
+デュカリオン|2.0|自作銃器|6(4凸時8)|210
+セラフィム|2.0|専用マシンガン|60|354
+アイーダ|2.0|儀式用騎銃|4|117～441
+パラス|2.0|巨斧ランチャー|3(強化4)|195
+`.trim().split("\n").map(line=>{const [name,cost,weapon,ammo,power]=line.split("|");return{name,cost,weapon,ammo,power}});
+
+const combatCharacterQuestions:Question[]=characterCombatData.flatMap((c,i)=>{
+  const wrongCost=["1.5","2.0","2.5","3.0"].find(x=>x!==c.cost)!;
+  const wrongAmmo=characterCombatData.find(x=>x.ammo!==c.ammo)!.ammo;
+  const wrongPower=characterCombatData.find(x=>x.power!==c.power)!.power;
+  const costChoices=i%2===0?[c.cost,wrongCost]:[wrongCost,c.cost];
+  const ammoChoices=i%2===0?[wrongAmmo,c.ammo]:[c.ammo,wrongAmmo];
+  const powerChoices=i%2===0?[c.power,wrongPower]:[wrongPower,c.power];
+  return [
+    {id:2000+i*3,category:"キャラクター性能",question:`${c.name}のコストは？`,options:costChoices,answer:i%2===0?0:1,explanation:`${c.name}のコストは${c.cost}です。`,image:images[(20+i)%images.length]},
+    {id:2001+i*3,category:"キャラクター性能",question:`${c.name}の「${c.weapon}」の弾数は？`,options:ammoChoices,answer:i%2===0?1:0,explanation:`「${c.weapon}」の弾数は${c.ammo}です。`,image:images[(21+i)%images.length]},
+    {id:2002+i*3,category:"キャラクター性能",question:`${c.name}の「${c.weapon}」の掲載威力は？`,options:powerChoices,answer:i%2===0?0:1,explanation:`「${c.weapon}」のフルヒット時を含む掲載威力は${c.power}です。`,image:images[(22+i)%images.length]},
+  ] as Question[];
+});
+
 const defaultResultTiers:ResultTier[]=[
   {min:18,title:"星間エース",message:"見事な知識です。戦場でもその判断力を！"},
   {min:14,title:"熟練スターライダー",message:"かなりの理解度です。あと少しでエース級！"},
@@ -195,7 +262,7 @@ const defaultResultTiers:ResultTier[]=[
   {min:0,title:"訓練生",message:"回答一覧を振り返って、もう一度挑戦してみよう。"},
 ];
 
-const initialQuestions: Question[] = [...baseQuestions, ...tipQuestions, ...characterQuestions, ...generatedCharacterQuestions];
+const initialQuestions: Question[] = [...baseQuestions, ...tipQuestions, ...combatCharacterQuestions];
 
 export default function Home({editorOnly=false}:{editorOnly?:boolean}={}) {
   const [screen,setScreen]=useState<"home"|"quiz"|"creator">(editorOnly?"creator":"home");
@@ -210,7 +277,7 @@ export default function Home({editorOnly=false}:{editorOnly?:boolean}={}) {
   const q=order[index];
   const resultTier=resultTiers.find(t=>score>=t.min)??resultTiers[resultTiers.length-1];
   const categories=useMemo(()=>Array.from(new Set(questions.map(x=>x.category))),[questions]);
-  useEffect(()=>{try{const saved=localStorage.getItem("starward-quiz-questions-v1");if(saved){const parsed:Question[]=JSON.parse(saved);const savedIds=new Set(parsed.map(q=>q.id));const additions=[...characterQuestions,...generatedCharacterQuestions].filter(q=>!savedIds.has(q.id));setQuestions([...parsed,...additions])}const savedResults=localStorage.getItem("starward-quiz-results-v1");if(savedResults)setResultTiers(JSON.parse(savedResults))}catch{}finally{setStorageReady(true)}},[]);
+  useEffect(()=>{try{const saved=localStorage.getItem("starward-quiz-questions-v1");if(saved){const parsed:Question[]=JSON.parse(saved);const withoutOldRegistrationQuestions=parsed.filter(q=>!(q.id>=201&&q.id<=220)&&!(q.id>=1000&&q.id<=1129)&&!(q.id>=2000&&q.id<=2149));setQuestions([...withoutOldRegistrationQuestions,...combatCharacterQuestions])}const savedResults=localStorage.getItem("starward-quiz-results-v1");if(savedResults)setResultTiers(JSON.parse(savedResults))}catch{}finally{setStorageReady(true)}},[]);
   useEffect(()=>{if(storageReady)localStorage.setItem("starward-quiz-questions-v1",JSON.stringify(questions))},[questions,storageReady]);
   useEffect(()=>{if(storageReady)localStorage.setItem("starward-quiz-results-v1",JSON.stringify(resultTiers))},[resultTiers,storageReady]);
 
