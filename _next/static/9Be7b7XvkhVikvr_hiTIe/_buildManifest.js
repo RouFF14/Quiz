@@ -4,7 +4,7 @@ self.__BUILD_MANIFEST = {
     "beforeFiles": [
       {
         "source": "/Quiz//_next/:path+",
-        "destination": "/Quiz/assets/:path+"
+        "destination": "/Quiz/_next/:path+"
       }
     ],
     "fallback": []

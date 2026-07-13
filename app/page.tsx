@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 type Question = { id: number; category: string; question: string; options: string[]; answer: number; explanation: string; image: string };
+type ResultTier = { min:number; title:string; message:string };
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
 const images = `
@@ -101,22 +102,117 @@ const characterQuestions: Question[] = [
   {id:220,category:"キャラクターDB",question:"フィービーのデータとして正しいものは？",options:["コスト2.0／期間限定","コスト2.5／コラボ"],answer:0,explanation:"フィービーはコスト2.0／期間限定です。",image:images[69]},
 ];
 
-const initialQuestions: Question[] = [...baseQuestions, ...tipQuestions, ...characterQuestions];
+const rosterData = `
+グリフィン|3.0|7|23|2|11
+ヒカリ|3.0|7|6|1|4
+エルフィン|3.0|6|5|1|3
+ケルビム|3.0|8|8|1|7
+シュウウ|3.0|8|10|2|7
+スズラン|3.0|13|11|1|3
+キャヴァリー|3.0|12|3|1|7
+ラジエル|3.0|7|17|2|6
+影|3.0|7|17|1|3
+ライン|3.0|10|2|2|4
+ロタ|3.0|6|16|1|6
+イーザー|3.0|7|13|2|3
+秋雲|3.0|6|20|3|5
+ベータ-ロンギヌス|3.0|10|7|2|4
+キャミィ|3.0|8|8|2|5
+セイレン|3.0|13|19|1|10
+無銘|3.0|11|12|2|7
+アカツキ|3.0|7|16|2|11
+ヴォイドセーバー|3.0|9|14|3|6
+プリシュカ|3.0|15|6|2|11
+フリード|2.5|11|6|1|7
+カゼ|2.5|7|4|1|7
+シャオリン|2.5|4|12|2|4
+シャープ|2.5|7|3|1|7
+アリス|2.5|10|16|1|4
+スカイセーバー|2.5|6|17|1|8
+十八号|2.5|6|7|1|8
+シグナス|2.5|6|9|1|6
+アンジェリス|2.5|16|1|1|5
+ヴァルキア|2.5|9|15|1|8
+エヴァ|2.5|10|4|2|9
+轟雷改|2.5|10|5|2|6
+稲|2.5|8|7|2|5
+バーゼラルド|2.5|15|7|1|7
+ノーラ|2.5|6|22|1|4
+ランスロット|2.5|9|16|2|8
+サンダーボルト・OTOME|2.5|12|10|3|8
+ガラハッド・暁|2.5|10|12|2|8
+デッド・アライブ|2.5|12|15|2|7
+ハルカ|2.5|13|9|2|7
+ドラグナー|2.5|12|6|1|8
+レキ|2.5|4|21|3|8
+ブラック★ロックシューター|2.5|8|19|2|8
+デッドマスター|2.5|7|8|2|6
+レミエル|2.5|6|5|1|6
+ベータ|2.0|6|10|1|4
+デュカリオン|2.0|4|18|1|7
+セラフィム|2.0|7|9|1|8
+アイーダ|2.0|4|3|1|3
+パラス|2.0|3|12|1|5
+スコーピオン|2.0|10|10|1|8
+ヴァーチェ|2.0|4|11|1|0
+ザハロワ|2.0|5|5|1|3
+咲迦|2.0|7|13|1|5
+チンニ|2.0|10|9|1|9
+ダークスター|2.0|6|3|1|5
+ヒビキ|2.0|6|14|1|5
+スティレット|2.0|7|6|1|4
+ボルゾイ|2.0|5|6|1|5
+キャッティ|2.0|7|7|1|7
+ブリーカー|2.0|5|10|1|7
+ガラハッド|2.0|5|8|1|5
+フランカー|2.0|4|8|1|7
+アイスリン|2.0|6|4|1|4
+クリスタ|2.0|6|7|2|5
+タチアナ|2.0|8|11|1|6
+フィービー|2.0|5|3|1|4
+オーキッド|1.5|4|7|1|3
+スノーウォル|1.5|7|2|1|6
+カタリナ|1.5|5|9|1|5
+ローランド|1.5|5|12|1|5
+ヤミン|1.5|4|18|1|5
+`.trim().split("\n").map(line=>{const [name,cost,shoot,melee,burst,cancel]=line.split("|");return{name,cost,shoot:+shoot,melee:+melee,burst:+burst,cancel:+cancel}});
+
+const generatedCharacterQuestions: Question[] = rosterData.flatMap((c,i)=>{
+  const costs=["1.5","2.0","2.5","3.0"]; const correctCost=costs.indexOf(c.cost); const wrongCost=costs[(correctCost+1+(i%3))%4];
+  const costOptions=i%2===0?[c.cost,wrongCost]:[wrongCost,c.cost];
+  const metrics=[{key:"shoot",label:"射撃武装"},{key:"melee",label:"格闘武装"},{key:"burst",label:"覚醒技"},{key:"cancel",label:"キャンセルルート"}] as const;
+  const metric=metrics[i%metrics.length]; const value=c[metric.key]; const wrong=value+(i%3)+1; const metricOptions=i%2===0?[`${wrong}件`,`${value}件`]:[`${value}件`,`${wrong}件`];
+  return [
+    {id:1000+i*2,category:"キャラクターDB",question:`${c.name}のコストは？`,options:costOptions,answer:i%2===0?0:1,explanation:`StarwardDB掲載値では、${c.name}はコスト${c.cost}です。`,image:images[(70+i)%images.length]},
+    {id:1001+i*2,category:"キャラクターDB",question:`${c.name}の${metric.label}登録数は？`,options:metricOptions,answer:i%2===0?1:0,explanation:`${c.name}の${metric.label}登録数は${value}件です。`,image:images[(71+i)%images.length]},
+  ] as Question[];
+}).slice(0,130);
+
+const defaultResultTiers:ResultTier[]=[
+  {min:18,title:"星間エース",message:"見事な知識です。戦場でもその判断力を！"},
+  {min:14,title:"熟練スターライダー",message:"かなりの理解度です。あと少しでエース級！"},
+  {min:9,title:"ルーキーパイロット",message:"基礎は十分。回答一覧で仕様を確認しよう。"},
+  {min:0,title:"訓練生",message:"回答一覧を振り返って、もう一度挑戦してみよう。"},
+];
+
+const initialQuestions: Question[] = [...baseQuestions, ...tipQuestions, ...characterQuestions, ...generatedCharacterQuestions];
 
 export default function Home({editorOnly=false}:{editorOnly?:boolean}={}) {
   const [screen,setScreen]=useState<"home"|"quiz"|"creator">(editorOnly?"creator":"home");
   const [questions,setQuestions]=useState<Question[]>(initialQuestions);
   const [storageReady,setStorageReady]=useState(false);
+  const [resultTiers,setResultTiers]=useState<ResultTier[]>(defaultResultTiers);
   const [order,setOrder]=useState(initialQuestions);
   const [index,setIndex]=useState(0); const [score,setScore]=useState(0);
   const [selected,setSelected]=useState<number|null>(null); const [finished,setFinished]=useState(false);
   const [answers,setAnswers]=useState<number[]>([]);
   const [draft,setDraft]=useState<Question|null>(null);
   const q=order[index];
-  const rank=score>=18?"星間エース":score>=14?"熟練スターライダー":score>=9?"ルーキーパイロット":"訓練生";
+  const resultTier=resultTiers.find(t=>score>=t.min)??resultTiers[resultTiers.length-1];
   const categories=useMemo(()=>Array.from(new Set(questions.map(x=>x.category))),[questions]);
-  useEffect(()=>{try{const saved=localStorage.getItem("starward-quiz-questions-v1");if(saved){const parsed:Question[]=JSON.parse(saved);const savedIds=new Set(parsed.map(q=>q.id));setQuestions([...parsed,...characterQuestions.filter(q=>!savedIds.has(q.id))])}}catch{}finally{setStorageReady(true)}},[]);
+  useEffect(()=>{try{const saved=localStorage.getItem("starward-quiz-questions-v1");if(saved){const parsed:Question[]=JSON.parse(saved);const savedIds=new Set(parsed.map(q=>q.id));const additions=[...characterQuestions,...generatedCharacterQuestions].filter(q=>!savedIds.has(q.id));setQuestions([...parsed,...additions])}const savedResults=localStorage.getItem("starward-quiz-results-v1");if(savedResults)setResultTiers(JSON.parse(savedResults))}catch{}finally{setStorageReady(true)}},[]);
   useEffect(()=>{if(storageReady)localStorage.setItem("starward-quiz-questions-v1",JSON.stringify(questions))},[questions,storageReady]);
+  useEffect(()=>{if(storageReady)localStorage.setItem("starward-quiz-results-v1",JSON.stringify(resultTiers))},[resultTiers,storageReady]);
 
   function start(){const next=[...questions].sort(()=>Math.random()-.5).slice(0,20);setOrder(next);setIndex(0);setScore(0);setAnswers([]);setSelected(null);setFinished(false);setScreen("quiz")}
   function choose(i:number){setSelected(i)}
@@ -139,9 +235,9 @@ export default function Home({editorOnly=false}:{editorOnly?:boolean}={}) {
       <div className="quiz-grid"><div className="question-card"><p className="category">// {q.category.toUpperCase()}</p><h2>{q.question}</h2><div className="options">{q.options.map((o,i)=><button key={o} className={selected===i?"chosen":""} onClick={()=>choose(i)}><span>{String.fromCharCode(65+i)}</span>{o}<b>{selected===i?"●":""}</b></button>)}</div><div className="answer-action"><p>{selected===null?"回答を1つ選択してください":"回答を選択しました。正解は最後にまとめて表示されます。"}</p><button className="primary" disabled={selected===null} onClick={next}>{index===order.length-1?"回答を完了":"回答して次へ"} ›</button></div></div><aside className="quiz-character"><div className="scan"/><img src={q.image} alt="キャラクターリアクション"/><span>Q-{String(index+1).padStart(2,"0")}</span></aside></div>
     </section>}
 
-    {!editorOnly&&screen==="quiz"&&finished&&<section className="result-wrap"><div className="result"><p className="eyebrow">MISSION COMPLETE</p><h2>{rank}</h2><div className="score-ring"><b>{score}</b><span>/ {order.length}</span></div><p>{score>=14?"見事な知識です。戦場でもその判断力を！":"下の回答一覧を振り返って、もう一度挑戦してみよう。"}</p><img src={score>=14?images[9]:images[0]} alt="結果リアクション"/><div><button className="primary" onClick={start}>もう一度挑戦</button><button className="secondary" onClick={()=>setScreen("home")}>ホームへ</button></div></div><div className="answer-review"><div className="review-head"><p className="eyebrow">ANSWER REVIEW</p><h2>回答一覧</h2><span>{score} / {order.length} 正解</span></div>{order.map((item,i)=>{const picked=answers[i];const ok=picked===item.answer;return <article key={item.id} className={ok?"review-ok":"review-ng"}><div className="review-number"><span>Q{String(i+1).padStart(2,"0")}</span><b>{ok?"✓ 正解":"× 不正解"}</b></div><div className="review-body"><h3>{item.question}</h3><p className="your-answer">あなたの回答：<b>{item.options[picked]}</b></p>{!ok&&<p className="right-answer">正解：<b>{item.options[item.answer]}</b></p>}<p className="review-explain">{item.explanation}</p></div></article>})}</div></section>}
+    {!editorOnly&&screen==="quiz"&&finished&&<section className="result-wrap"><div className="result"><p className="eyebrow">MISSION COMPLETE</p><h2>{resultTier.title}</h2><div className="score-ring"><b>{score}</b><span>/ {order.length}</span></div><p>{resultTier.message}</p><img src={score>=14?images[9]:images[0]} alt="結果リアクション"/><div><button className="primary" onClick={start}>もう一度挑戦</button><button className="secondary" onClick={()=>setScreen("home")}>ホームへ</button></div></div><div className="answer-review"><div className="review-head"><p className="eyebrow">ANSWER REVIEW</p><h2>回答一覧</h2><span>{score} / {order.length} 正解</span></div>{order.map((item,i)=>{const picked=answers[i];const ok=picked===item.answer;return <article key={item.id} className={ok?"review-ok":"review-ng"}><div className="review-number"><span>Q{String(i+1).padStart(2,"0")}</span><b>{ok?"✓ 正解":"× 不正解"}</b></div><div className="review-body"><h3>{item.question}</h3><p className="your-answer">あなたの回答：<b>{item.options[picked]}</b></p>{!ok&&<p className="right-answer">正解：<b>{item.options[item.answer]}</b></p>}<p className="review-explain">{item.explanation}</p></div></article>})}</div></section>}
 
-    {editorOnly&&screen==="creator"&&<section className="creator"><div className="creator-head"><div><p className="eyebrow">QUIZ BUILDER</p><h1>クイズ作成</h1><p>変更内容はこのブラウザへ自動保存されます。</p></div><div><label className="import-button">JSONから復元<input type="file" accept="application/json,.json" onChange={e=>{const f=e.target.files?.[0];if(f)importQuiz(f);e.target.value=""}}/></label><button className="secondary" onClick={exportQuiz}>JSON書き出し</button><button className="primary" onClick={()=>setDraft({id:Date.now(),category:"カスタム",question:"",options:["","","",""],answer:0,explanation:"",image:images[0]})}>＋ 新しい問題</button></div></div><div className="autosave-note">● 自動保存 ON　／　現在の問題データを保持中</div><div className="creator-stats"><b>{questions.length}<small>問題数</small></b><span>{categories.map(c=><i key={c}>{c}</i>)}</span></div><div className="question-list">{questions.map((item,i)=><article key={item.id}><span>{String(i+1).padStart(2,"0")}</span><img src={item.image} alt=""/><div><small>{item.category}</small><b>{item.question}</b><p>正解：{item.options[item.answer]}</p></div><button onClick={()=>setDraft({...item,options:[...item.options]})}>編集</button><button className="delete" aria-label="削除" onClick={()=>setQuestions(qs=>qs.filter(x=>x.id!==item.id))}>×</button></article>)}</div></section>}
+    {editorOnly&&screen==="creator"&&<section className="creator"><div className="creator-head"><div><p className="eyebrow">QUIZ BUILDER</p><h1>クイズ作成</h1><p>変更内容はこのブラウザへ自動保存されます。</p></div><div><label className="import-button">JSONから復元<input type="file" accept="application/json,.json" onChange={e=>{const f=e.target.files?.[0];if(f)importQuiz(f);e.target.value=""}}/></label><button className="secondary" onClick={exportQuiz}>JSON書き出し</button><button className="primary" onClick={()=>setDraft({id:Date.now(),category:"カスタム",question:"",options:["","","",""],answer:0,explanation:"",image:images[0]})}>＋ 新しい問題</button></div></div><div className="autosave-note">● 自動保存 ON　／　現在の問題データを保持中</div><section className="result-editor"><div><p className="eyebrow">RESULT MESSAGE</p><h2>結果の称号・メッセージ</h2></div><div className="tier-grid">{resultTiers.map((tier,i)=><article key={tier.min}><b>{tier.min}点以上</b><label>称号<input value={tier.title} onChange={e=>setResultTiers(ts=>ts.map((t,j)=>j===i?{...t,title:e.target.value}:t))}/></label><label>メッセージ<textarea value={tier.message} onChange={e=>setResultTiers(ts=>ts.map((t,j)=>j===i?{...t,message:e.target.value}:t))}/></label></article>)}</div></section><div className="creator-stats"><b>{questions.length}<small>問題数</small></b><span>{categories.map(c=><i key={c}>{c}</i>)}</span></div><div className="question-list">{questions.map((item,i)=><article key={item.id}><span>{String(i+1).padStart(3,"0")}</span><img src={item.image} alt=""/><div><small>{item.category}</small><b>{item.question}</b><p>正解：{item.options[item.answer]}</p></div><button onClick={()=>setDraft({...item,options:[...item.options]})}>編集</button><button className="delete" aria-label="削除" onClick={()=>setQuestions(qs=>qs.filter(x=>x.id!==item.id))}>×</button></article>)}</div></section>}
 
     {draft&&<div className="editor-overlay"><section className="editor-dialog">
       <button type="button" className="editor-close" onClick={()=>setDraft(null)}>×</button>
