@@ -241,16 +241,33 @@ const characterCombatData = `
 パラス|2.0|巨斧ランチャー|3(強化4)|195
 `.trim().split("\n").map(line=>{const [name,cost,weapon,ammo,power]=line.split("|");return{name,cost,weapon,ammo,power}});
 
+const makeWrongAmmo=(ammo:string,index:number)=>{
+  const change=(value:string)=>{
+    const count=Number(value);
+    const delta=count===1?1:index%2===0?1:-1;
+    return String(count+delta);
+  };
+  return ammo
+    .replace(/^(\d+)/,(_,value)=>change(value))
+    .replace(/時(\d+)/g,(_,value)=>`時${change(value)}`)
+    .replace(/強化(\d+)/g,(_,value)=>`強化${change(value)}`);
+};
+
+const formatAmmo=(ammo:string)=>ammo
+  .replace(/^(\d+)/,"$1発")
+  .replace(/時(\d+)/g,"時$1発")
+  .replace(/強化(\d+)/g,"強化時$1発");
+
 const combatCharacterQuestions:Question[]=characterCombatData.flatMap((c,i)=>{
   const wrongCost=["1.5","2.0","2.5","3.0"].find(x=>x!==c.cost)!;
-  const wrongAmmo=characterCombatData.find(x=>x.ammo!==c.ammo)!.ammo;
+  const wrongAmmo=makeWrongAmmo(c.ammo,i);
   const wrongPower=characterCombatData.find(x=>x.power!==c.power)!.power;
   const costChoices=i%2===0?[c.cost,wrongCost]:[wrongCost,c.cost];
-  const ammoChoices=i%2===0?[wrongAmmo,c.ammo]:[c.ammo,wrongAmmo];
+  const ammoChoices=i%2===0?[formatAmmo(wrongAmmo),formatAmmo(c.ammo)]:[formatAmmo(c.ammo),formatAmmo(wrongAmmo)];
   const powerChoices=i%2===0?[c.power,wrongPower]:[wrongPower,c.power];
   return [
     {id:2000+i*3,category:"キャラクター性能",question:`${c.name}のコストは？`,options:costChoices,answer:i%2===0?0:1,explanation:`${c.name}のコストは${c.cost}です。`,image:images[(20+i)%images.length]},
-    {id:2001+i*3,category:"キャラクター性能",question:`${c.name}の「${c.weapon}」の弾数は？`,options:ammoChoices,answer:i%2===0?1:0,explanation:`「${c.weapon}」の弾数は${c.ammo}です。`,image:images[(21+i)%images.length]},
+    {id:2001+i*3,category:"キャラクター性能",question:`${c.name}の「${c.weapon}」の弾数は？`,options:ammoChoices,answer:i%2===0?1:0,explanation:`「${c.weapon}」の弾数は${formatAmmo(c.ammo)}です。`,image:images[(21+i)%images.length]},
     {id:2002+i*3,category:"キャラクター性能",question:`${c.name}の「${c.weapon}」の威力は？`,options:powerChoices,answer:i%2===0?0:1,explanation:`「${c.weapon}」の威力は${c.power}です。`,image:images[(22+i)%images.length]},
   ] as Question[];
 });

@@ -1,2 +1,2 @@
 :HL["/Quiz/_next/static/chunks/103xjs-t_tcsd.css","style"]
-0:{"tree":{"name":"","param":null,"prefetchHints":16,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":0,"slots":null}}},"staleTime":300,"buildId":"ZL-t-dkQl_Ey3or4DVvEJ"}
+0:{"tree":{"name":"","param":null,"prefetchHints":16,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":0,"slots":null}}},"staleTime":300,"buildId":"HjAla4ds30v-Hvlvnz7LO"}
