@@ -82,10 +82,8 @@ const initialQuestions: Question[] = [...baseQuestions, ...tipQuestions];
 
 export default function Home({editorOnly=false}:{editorOnly?:boolean}={}) {
   const [screen,setScreen]=useState<"home"|"quiz"|"creator">(editorOnly?"creator":"home");
-  const [questions,setQuestions]=useState<Question[]>(()=>{
-    if(typeof window==="undefined") return initialQuestions;
-    try{const saved=localStorage.getItem("starward-quiz-questions-v1");return saved?JSON.parse(saved):initialQuestions}catch{return initialQuestions}
-  });
+  const [questions,setQuestions]=useState<Question[]>(initialQuestions);
+  const [storageReady,setStorageReady]=useState(false);
   const [order,setOrder]=useState(initialQuestions);
   const [index,setIndex]=useState(0); const [score,setScore]=useState(0);
   const [selected,setSelected]=useState<number|null>(null); const [finished,setFinished]=useState(false);
@@ -94,7 +92,8 @@ export default function Home({editorOnly=false}:{editorOnly?:boolean}={}) {
   const q=order[index];
   const rank=score>=18?"星間エース":score>=14?"熟練スターライダー":score>=9?"ルーキーパイロット":"訓練生";
   const categories=useMemo(()=>Array.from(new Set(questions.map(x=>x.category))),[questions]);
-  useEffect(()=>{localStorage.setItem("starward-quiz-questions-v1",JSON.stringify(questions))},[questions]);
+  useEffect(()=>{try{const saved=localStorage.getItem("starward-quiz-questions-v1");if(saved)setQuestions(JSON.parse(saved))}catch{}finally{setStorageReady(true)}},[]);
+  useEffect(()=>{if(storageReady)localStorage.setItem("starward-quiz-questions-v1",JSON.stringify(questions))},[questions,storageReady]);
 
   function start(){const pool=random?[...questions].sort(()=>Math.random()-.5):[...questions];const next=pool.slice(0,20);setOrder(next);setIndex(0);setScore(0);setAnswers([]);setSelected(null);setFinished(false);setScreen("quiz")}
   function choose(i:number){setSelected(i)}
