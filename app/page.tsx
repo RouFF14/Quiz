@@ -78,7 +78,30 @@ const tipQuestions: Question[] = [
   {id:130,category:"Tips仕様",question:"フィービーのバケツ被せによる赤ロック距離の変化は？",options:["10～15%短縮","10～15%延長"],answer:0,explanation:"バケツ被せ効果で赤ロック距離が10～15%短縮されます。",image:images[49]},
 ];
 
-const initialQuestions: Question[] = [...baseQuestions, ...tipQuestions];
+const characterQuestions: Question[] = [
+  {id:201,category:"キャラクターDB",question:"グリフィンのコストは？",options:["2.0","2.5","3.0","1.5"],answer:2,explanation:"StarwardDB掲載値では、グリフィンはコスト3.0です。",image:images[50]},
+  {id:202,category:"キャラクターDB",question:"ヤミンのコストは？",options:["1.5","2.5"],answer:0,explanation:"ヤミンはコスト1.5のキャラクターです。",image:images[51]},
+  {id:203,category:"キャラクターDB",question:"射撃武装の登録数が16件なのは？",options:["アンジェリス","アイーダ"],answer:0,explanation:"アンジェリスは射撃16件、アイーダは射撃4件です。",image:images[52]},
+  {id:204,category:"キャラクターDB",question:"格闘武装の登録数が22件なのは？",options:["ノーラ","ダークスター"],answer:0,explanation:"ノーラは格闘22件で、データベース内でも格闘項目が多いキャラクターです。",image:images[53]},
+  {id:205,category:"キャラクターDB",question:"グリフィンの格闘武装登録数は？",options:["6件","12件","23件","3件"],answer:2,explanation:"グリフィンは射撃7件・格闘23件と掲載されています。",image:images[54]},
+  {id:206,category:"キャラクターDB",question:"プリシュカの射撃武装登録数は？",options:["5件","15件"],answer:1,explanation:"プリシュカは射撃15件・格闘6件です。",image:images[55]},
+  {id:207,category:"キャラクターDB",question:"キャンセルルートの登録数が0件なのは？",options:["ヴァーチェ","チンニ"],answer:0,explanation:"ヴァーチェはキャンセル0件、チンニは9件と掲載されています。",image:images[56]},
+  {id:208,category:"キャラクターDB",question:"アカツキのキャンセルルート登録数は？",options:["3件","11件"],answer:1,explanation:"アカツキはキャンセル11件です。",image:images[57]},
+  {id:209,category:"キャラクターDB",question:"ヒカリの格闘武装登録数は？",options:["6件","17件"],answer:0,explanation:"ヒカリは射撃7件・格闘6件です。",image:images[58]},
+  {id:210,category:"キャラクターDB",question:"ラインの格闘武装登録数は？",options:["2件","20件"],answer:0,explanation:"ラインは射撃10件・格闘2件です。",image:images[59]},
+  {id:211,category:"キャラクターDB",question:"セイレンの射撃／格闘登録数の組み合わせは？",options:["射撃13・格闘19","射撃19・格闘13"],answer:0,explanation:"セイレンは射撃13件・格闘19件です。",image:images[60]},
+  {id:212,category:"キャラクターDB",question:"十八号のコストは？",options:["2.0","2.5","3.0","1.5"],answer:1,explanation:"十八号はコスト2.5です。",image:images[61]},
+  {id:213,category:"キャラクターDB",question:"スティレットのデータとして正しいものは？",options:["コスト2.0／コラボ","コスト3.0／期間限定"],answer:0,explanation:"スティレットはコスト2.0のコラボキャラクターです。",image:images[62]},
+  {id:214,category:"キャラクターDB",question:"ボルゾイのデータとして正しいものは？",options:["コスト2.0／シーズンパス","コスト1.5／コラボ"],answer:0,explanation:"ボルゾイはコスト2.0／シーズンパスと掲載されています。",image:images[63]},
+  {id:215,category:"キャラクターDB",question:"レキの格闘武装登録数は？",options:["8件","21件"],answer:1,explanation:"レキは射撃4件・格闘21件です。",image:images[64]},
+  {id:216,category:"キャラクターDB",question:"スノーウォルの格闘武装登録数は？",options:["2件","12件"],answer:0,explanation:"スノーウォルは射撃7件・格闘2件です。",image:images[65]},
+  {id:217,category:"キャラクターDB",question:"ヤミンの格闘武装登録数は？",options:["5件","18件"],answer:1,explanation:"ヤミンは射撃4件・格闘18件です。",image:images[66]},
+  {id:218,category:"キャラクターDB",question:"シュウウの覚醒技登録数は？",options:["1件","2件"],answer:1,explanation:"シュウウは覚醒2件と掲載されています。",image:images[67]},
+  {id:219,category:"キャラクターDB",question:"ヴォイドセーバーのデータとして正しいものは？",options:["コスト3.0／期間限定","コスト2.0／シーズンパス"],answer:0,explanation:"ヴォイドセーバーはコスト3.0／期間限定です。",image:images[68]},
+  {id:220,category:"キャラクターDB",question:"フィービーのデータとして正しいものは？",options:["コスト2.0／期間限定","コスト2.5／コラボ"],answer:0,explanation:"フィービーはコスト2.0／期間限定です。",image:images[69]},
+];
+
+const initialQuestions: Question[] = [...baseQuestions, ...tipQuestions, ...characterQuestions];
 
 export default function Home({editorOnly=false}:{editorOnly?:boolean}={}) {
   const [screen,setScreen]=useState<"home"|"quiz"|"creator">(editorOnly?"creator":"home");
@@ -92,7 +115,7 @@ export default function Home({editorOnly=false}:{editorOnly?:boolean}={}) {
   const q=order[index];
   const rank=score>=18?"星間エース":score>=14?"熟練スターライダー":score>=9?"ルーキーパイロット":"訓練生";
   const categories=useMemo(()=>Array.from(new Set(questions.map(x=>x.category))),[questions]);
-  useEffect(()=>{try{const saved=localStorage.getItem("starward-quiz-questions-v1");if(saved)setQuestions(JSON.parse(saved))}catch{}finally{setStorageReady(true)}},[]);
+  useEffect(()=>{try{const saved=localStorage.getItem("starward-quiz-questions-v1");if(saved){const parsed:Question[]=JSON.parse(saved);const savedIds=new Set(parsed.map(q=>q.id));setQuestions([...parsed,...characterQuestions.filter(q=>!savedIds.has(q.id))])}}catch{}finally{setStorageReady(true)}},[]);
   useEffect(()=>{if(storageReady)localStorage.setItem("starward-quiz-questions-v1",JSON.stringify(questions))},[questions,storageReady]);
 
   function start(){const next=[...questions].sort(()=>Math.random()-.5).slice(0,20);setOrder(next);setIndex(0);setScore(0);setAnswers([]);setSelected(null);setFinished(false);setScreen("quiz")}
